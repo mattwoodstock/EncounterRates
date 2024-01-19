@@ -4,6 +4,8 @@ library(dplyr)
 library(tidyverse)
 library(viridis)
 library(ggridges)
+library(cowplot)
+
 
 # Create a color-blind friendly palette with 9 colors
 color_blind_friendly_palette_8 <- viridis_pal()(8)
@@ -27,7 +29,6 @@ encounter_density <- ggplot(dat,aes(x=PreyN,y=Encounter/300,color=as.factor(Velo
   xlim(0,900)+
   theme(legend.title = element_blank())
 
-
 ggsave("Encounter_rate_prey_abundance.png",dpi=300,encounter_density,height = unit(7,"in"),width=unit(12,"in"))
 
 dens_velo <- ggplot(dat,aes(x=Velo_rat,y=Encounter/300,color=as.factor(PreyN)))+
@@ -48,7 +49,6 @@ dens_velo <- ggplot(dat,aes(x=Velo_rat,y=Encounter/300,color=as.factor(PreyN)))+
 
 ggsave("Encounter_rate_prey_velo.png",dpi=300,dens_velo,height = unit(7,"in"),width=unit(12,"in"))
 
-
 ggplot(dat,aes(x=Velo_rat,y=Encounter/300,color=as.factor(PreyN)))+
   geom_vline(xintercept = 1)+
   geom_point(size=1.5)+
@@ -66,9 +66,7 @@ ggplot(dat,aes(x=Velo_rat,y=Encounter/300,color=as.factor(PreyN)))+
 
 ggsave("Encounter rate_prey velo.png",dpi=300,dens_velo,height = unit(7,"in"),width=unit(12,"in"))
 
-
 ## Histogram of prey densities
-setwd("D:/pz_encounter/outputs")
 dat1 <- read.csv("Prey visual range results.csv")
 dat1 <- dat1 %>% mutate(Simulation = 1:nrow(dat1))
 
@@ -84,7 +82,6 @@ for (a in 1:nrow(dat1)){
 }
 all_dat2 <- all_dat %>% mutate(Prop_dens = Density/PreyN)
 
-unique(all_dat2$Prey_vis)
 ggplot(all_dat,aes(x=Density,fill=as.factor(Prey_vis)))+
   geom_density(alpha = 0.5)+
   #geom_histogram(binwidth = 5,color="black")+
@@ -95,10 +92,8 @@ ggplot(all_dat,aes(x=Density,fill=as.factor(Prey_vis)))+
 
 all_dat2[(all_dat2$Prey_vis == 0.4) & (all_dat2$Prey_velo == 1e-4),]
 
-count <- 1
 setwd("D:/pz_encounter/outputs/Densities")
 
-library(cowplot)
 for (vis in 1:n_distinct(all_dat2$Prey_vis)){
   all_dat4 <- all_dat2 %>% filter(Prey_vis == unique(all_dat2$Prey_vis)[vis])
   p <- list()
@@ -226,13 +221,10 @@ third <- all_dat2 %>% group_by(PreyN,Prey_vis,Prey_velo) %>% summarize(quantile(
 
 new_dat <- merge(first,third,by=c("PreyN","Prey_vis","Prey_velo"))
 new_dat2 <- merge(new_dat,mid,by=c("PreyN","Prey_vis","Prey_velo"))
-head(df)
-head(new_dat2)
 new_dat3 <- merge(new_dat2,df,by=c("Prey_vis","Prey_velo"))
 
 consumption = new_dat3 %>% mutate(HighQ = 0.7*5*5000*(a*(third/500))/(1+(8*60)*a*(third/500)),LowQ = 0.7*5*5000*(a*(first/500))/(1+(8*60)*a*(first/500))) %>% mutate(Grid = 0.7*5*5000*(a*((PreyN/1000)))/(1+(8*60)*a*((PreyN/1000))), MidQ = 0.7*5*5000*(a*(mid/500))/(1+(8*60)*a*(mid/500))) %>% filter(Vis != 0,Speed >= 2) 
 
-head(onsumption)
 consumption_plot <- ggplot(consumption,aes(x=PreyN))+
   geom_line(aes(x=PreyN,y=consumption$LowQ))+
   geom_hline(yintercept = 0)+
@@ -241,9 +233,16 @@ consumption_plot <- ggplot(consumption,aes(x=PreyN))+
   geom_line(aes(x=PreyN,y=consumption$MidQ),color="black",linewidth=1.5)+
   geom_ribbon(aes(ymin = consumption$LowQ,ymax=consumption$HighQ),alpha = 0.2)+
   facet_grid(Vis~Speed)+
-  labs(x="Prey Abundance",y="Consumption (J per timestep)")+
+  labs(x="Prey Abundance",y="Consumption (J per timestep per predator)")+
   theme_classic()
+ggsave("Consumption_Rates.png",dpi=300,consumption_plot,height = unit(6,"in"),width=unit(10,"in"))
 
-ggsave("Consumption_Rates.png",dpi=300,consumption_plot,height = unit(7,"in"),width=unit(12,"in"))
+head(consumption)
+
+consumption <- consumption %>% mutate(Diff = Grid - MidQ,Diff2 = HighQ-LowQ)
+
+head(consumption)
+head(consumption[order(-consumption$Diff2),])
+
 ### Working area ----
 
