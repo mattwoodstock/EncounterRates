@@ -16,6 +16,6 @@ module load julia                  # Load the julia module
  
 echo "Running julia script for Encounter Rates"
  
-julia /vortexfs1/scratch/username/SLURM/poseidon_submittion.jl
+julia /vortexfs1/scratch/username/SLURM/src/poseidon_submittion.jl
  
 date
