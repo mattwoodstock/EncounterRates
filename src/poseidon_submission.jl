@@ -1,7 +1,17 @@
+using Pkg
+Pkg.add("LinearAlgebra")
+Pkg.add("Statistics")
+Pkg.add("DataFrames")
+Pkg.add("CSV")
+Pkg.add("Tables")
+Pkg.add("Dates")
+Pkg.add("JLD2")
+Pkg.add("PlanktonIndividuals")
+Pkg.add("Plots")
+Pkg.add("Optim")
+
 using LinearAlgebra, Statistics, DataFrames, CSV, Tables, Dates, JLD2
 using PlanktonIndividuals, Plots, Optim
-
-cd("D:/pz_encounter/test")
 
 #Structure to hold data
 mutable struct Results
