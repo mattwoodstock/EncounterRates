@@ -331,17 +331,10 @@ function plot_model(res::Results,model::PlanktonModel, z_pause::Vector{Float64},
                 else
                     dist2 = abs(p_pos[dim,i] + (1-z_pos[dim,j]))
                 end
-                println(dist1)
-                println(dist2)
-                println(p_pos[dim,i])
-                println(z_pos[dim,j])
-                println()
-                
+               
                 dist_coord[dim] = min(dist1,dist2)
             end
                 dist_3d[i,j] = sqrt((dist_coord[1])^2+(dist_coord[2])^2+(dist_coord[3])^2)
-                println(dist_3d[i,j])
-                stop
         end
     end
 
@@ -512,8 +505,8 @@ function run_test(res::Results,N_replicates=10, N_individual=[2^8, 2^3]::Vector{
         encounter_diags = Dict{String, Any}()
         encounter_diags["num_encounters"] = Vector{Int64}()
 
-        #anim = @animate for j in 1:N_iter
-        for j in 1:N_iter
+        anim = @animate for j in 1:N_iter
+        #for j in 1:N_iter
             update!(sim)
 
             densities, locations = plot_model(res,model, z_pause, ΔT, deactivate, encounter_diags,densities,isubexp,j,locations; z_pause_ΔT=z_pause_ΔT, encounter_tresh=encounter_tresh, velo1=velo1, velo2 = velo2,prey_vis=prey_vis,pred_vis = pred_vis)
@@ -526,7 +519,7 @@ function run_test(res::Results,N_replicates=10, N_individual=[2^8, 2^3]::Vector{
             #plt
             
         end
-        #gif(anim, joinpath("frames", "PredPrey_Ecounter_ $(isubexp).gif"), fps = 5) # used to be 15 fps
+        gif(anim, joinpath("frames", "PredPrey_Ecounter_ $(isubexp).gif"), fps = 5) # used to be 15 fps
 
         push!(replicate_diags["sum_encounters"], sum(encounter_diags["num_encounters"]))
         push!(replicate_diags["mean_encounters"], mean(encounter_diags["num_encounters"]))
